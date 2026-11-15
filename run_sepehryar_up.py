@@ -51,17 +51,30 @@ def start_server_background():
     node_exe = find_node_exe()
     creation_flags = 0x08000000  # CREATE_NO_WINDOW
     log_file = UP_DIR / "server_output.log"
+    env = dict(os.environ, CI="true", FORCE_COLOR="0")
     with open(log_file, "a", encoding="utf-8") as out:
         subprocess.Popen(
-            [str(node_exe), "scripts/run-framework.mjs", "dev", "-H", "0.0.0.0", "--port", "3000"],
+            [
+                str(node_exe),
+                "--import", "./scripts/sites-env.mjs",
+                "./node_modules/wrangler/bin/wrangler.js", "dev",
+                "--config", "dist/server/wrangler.json",
+                "--local",
+                "--persist-to", ".wrangler/state",
+                "--ip", "0.0.0.0",
+                "--port", "3000",
+                "--inspector-port", "0"
+            ],
             cwd=str(UP_DIR),
+            stdin=subprocess.PIPE,
             stdout=out,
             stderr=out,
             creationflags=creation_flags,
+            env=env,
         )
 
     # صبر جهت لیسن شدن پورت
-    for _ in range(15):
+    for _ in range(25):
         if is_port_listening(3000):
             break
         time.sleep(0.5)
