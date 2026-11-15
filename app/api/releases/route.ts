@@ -2,6 +2,7 @@ import { env } from 'cloudflare:workers';
 import { getDb } from '@/db';
 import { releases } from '@/db/schema';
 import { desc } from 'drizzle-orm';
+import { authorizeUpload } from '@/lib/upload-auth';
 
 const VALID_CATEGORIES = [
   'بازرگانی',
@@ -27,6 +28,11 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  // Local development keeps the existing LAN workflow. Production fails closed.
+  if (!import.meta.env.DEV) {
+    const denied = await authorizeUpload(req, env.UP_ADMIN_TOKEN);
+    if (denied) return denied;
+  }
   try {
     const formData = await req.formData();
     const mode = String(formData.get('mode') || 'file');
@@ -67,9 +73,9 @@ export async function POST(req: Request) {
         throw new Error('لطفاً یک فایل معتبر برای آپلود و ساخت لینک انتخاب کنید.');
       }
 
-      const MAX_SIZE = 100 * 1024 * 1024; // 100 MB
+      const MAX_SIZE = 1024 * 1024 * 1024; // 1 GB (1024 MB)
       if (file.size > MAX_SIZE) {
-        throw new Error('حجم فایل انتخابی بیشتر از سقف مجاز (۱۰۰ مگابایت) است.');
+        throw new Error('حجم فایل انتخابی بیشتر از سقف مجاز (۱ گیگابایت) است.');
       }
 
       filename = file.name;
@@ -88,6 +94,7 @@ export async function POST(req: Request) {
 
       // ذخیره‌سازی فایل در مخزن ابری
       key = `releases/${id}/${encodeURIComponent(filename)}`;
+      if (!env.BUCKET) throw new Error('مخزن ذخیره‌سازی فایل در دسترس نیست.');
       if (env.BUCKET) {
         await env.BUCKET.put(key, file.stream(), {
           httpMetadata: {

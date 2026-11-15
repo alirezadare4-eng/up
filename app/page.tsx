@@ -188,7 +188,7 @@ export default function Page() {
         const fileInput = e.currentTarget.querySelector('input[type="file"]') as HTMLInputElement;
         const file = fileInput?.files?.[0];
         if (!file) throw new Error('لطفاً فایلی را برای آپلود انتخاب کنید.');
-        if (file.size > 100 * 1024 * 1024) throw new Error('حجم فایل باید کمتر از ۱۰۰ مگابایت باشد.');
+        if (file.size > 1024 * 1024 * 1024) throw new Error('حجم فایل باید کمتر از ۱ گیگابایت باشد.');
         data.set('file', file);
       } else {
         const urlInput = e.currentTarget.querySelector('input[name="url"]') as HTMLInputElement;
@@ -197,7 +197,12 @@ export default function Page() {
         data.set('url', urlVal);
       }
 
-      const r = await fetch('/api/releases', { method: 'POST', body: data });
+      const passwordInput = e.currentTarget.querySelector<HTMLInputElement>('input[name="adminPassword"]');
+      const adminPassword = passwordInput?.value || '';
+      const r = await fetch('/api/releases', {
+        method: 'POST', body: data,
+        headers: adminPassword ? { Authorization: `Bearer ${adminPassword}` } : {},
+      });
       const result = (await r.json()) as {
         id?: string;
         downloadUrl?: string;
@@ -293,7 +298,7 @@ export default function Page() {
             </div>
             <div className="quickdroptxt">
               <h3>برای دریافت آنی لینک دانلود، فایل خود را اینجا کلیک یا رها کنید</h3>
-              <p>پشتیبانی از انواع فایل‌های ZIP، RAR، EXE، MSI تا ۱۰۰ مگابایت — ساخت خودکار لینک پایدار</p>
+              <p>پشتیبانی از انواع فایل‌های ZIP، RAR، EXE، MSI تا ۱ گیگابایت — ساخت خودکار لینک پایدار</p>
             </div>
           </div>
           <button type="button" className="secondary" style={{ pointerEvents: 'none' }}>
@@ -532,6 +537,11 @@ export default function Page() {
 
         {modal && (
           <form onSubmit={save}>
+            <label>
+              رمز مدیریت
+              <input name="adminPassword" type="password" autoComplete="off" dir="ltr"
+                placeholder="رمز مخصوص بارگذاری نسخهٔ اینترنتی" />
+            </label>
             <div className="modetabs">
               <button
                 type="button"
@@ -556,7 +566,7 @@ export default function Page() {
                 <span>
                   {fileSizeStr
                     ? `حجم فایل: ${fileSizeStr}`
-                    : 'فرمت‌های مجاز: ZIP, RAR, EXE, MSI · حداکثر ۱۰۰ مگابایت'}
+                    : 'فرمت‌های مجاز: ZIP, RAR, EXE, MSI · حداکثر ۱ گیگابایت'}
                 </span>
                 <input
                   aria-label="انتخاب فایل"
