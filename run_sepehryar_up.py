@@ -67,6 +67,40 @@ def start_server_background():
         time.sleep(0.5)
 
 
+def get_short_links(target_url: str):
+    """تولید خودکار لینک‌های کوتاه، پرسرعت و به یادماندنی"""
+    import urllib.request
+    import urllib.parse
+    import json
+
+    short_url = ""
+    # ۱. تلاش برای لینک با نام اختصاصی سپهریار
+    try:
+        data = urllib.parse.urlencode({'url': target_url, 'alias': 'sepehryarup'}).encode()
+        req = urllib.request.Request('https://spoo.me/', data=data, headers={'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=4) as r:
+            res = json.loads(r.read())
+            if res.get('short_url'):
+                short_url = res['short_url'].replace('http://', 'https://')
+    except Exception:
+        pass
+
+    if not short_url:
+        short_url = "https://spoo.me/sepehryarup"
+
+    # ۲. لینک فوق کوتاه کمکی از سرور ابری clck
+    alt_short = ""
+    try:
+        url = f'https://clck.ru/--?url={urllib.parse.quote(target_url)}'
+        req = urllib.request.Request(url, headers={'User-Agent': 'curl/7.68.0'})
+        with urllib.request.urlopen(req, timeout=4) as r:
+            alt_short = r.read().decode('utf-8').strip()
+    except Exception:
+        pass
+
+    return short_url, alt_short
+
+
 def start_cloudflared_tunnel():
     if not CLOUDFLARED_EXE.exists():
         return
@@ -115,23 +149,28 @@ def start_cloudflared_tunnel():
         time.sleep(0.5)
 
     if public_url and DESKTOP_DIR.exists():
-        # ۱. ذخیره فایل متنی با لینک آنلاین
+        short_url, alt_short = get_short_links(public_url)
+
+        # ۱. ذخیره فایل متنی با لینک آنلاین و لینک‌های کوتاه
         info_txt = DESKTOP_DIR / "لینک_اینترنتی_مرکز_آپدیت.txt"
         info_content = (
             "=====================================================\n"
-            "   لینک اینترنتی سراسری مرکز آپدیت سپهریار\n"
-            "   (قابل باز شدن از هر جا، بدون نیاز به شبکه محلی)\n"
+            "   سامانه فوق‌سریع SEPEHRYARUPLOADER\n"
+            "   (آپلود و دانلود پرسرعت تا ۱ گیگابایت با لینک مستقیم)\n"
             "=====================================================\n\n"
-            f"آدرس وب‌سایت:\n{public_url}\n\n"
-            "آدرس شبکه داخلی (آفلاین):\nhttp://192.168.10.190:3000\n"
+            f"🔗 لینک اختصاصی و کوتاه (رند و شیک):\n{short_url}\n\n"
+            + (f"🔗 لینک فوق‌کوتاه جایگزین:\n{alt_short}\n\n" if alt_short else "")
+            + f"آدرس مستقیم ابری:\n{public_url}\n\n"
+            "آدرس شبکه داخلی (آفلاین با نهایت سرعت گیگابیت):\n"
+            "http://192.168.10.190:3000\n"
             "http://localhost:3000\n\n"
-            "پشتیبانی از دانلود و آپلود تا ۱ گیگابایت\n"
+            "پشتیبانی از دانلود و آپلود تا ۱ گیگابایت با شتاب‌دهنده IDM\n"
         )
         info_txt.write_text(info_content, encoding="utf-8")
 
-        # ۲. فایل URL اینترنتی با کلیک مستقیم
+        # ۲. فایل URL اینترنتی با کلیک مستقیم روی لینک کوتاه
         url_file = DESKTOP_DIR / "ورود به مرکز آپدیت (اینترنتی).url"
-        url_file.write_text(f"[InternetShortcut]\nURL={public_url}\n", encoding="utf-8")
+        url_file.write_text(f"[InternetShortcut]\nURL={short_url}\n", encoding="utf-8")
 
 
 def create_shortcuts():
