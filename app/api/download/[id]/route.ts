@@ -24,7 +24,13 @@ export async function GET(
       return new Response('مخزن ذخیره‌سازی فایل در دسترس نیست.', { status: 503 });
     }
 
-    const file = await env.BUCKET.get(r.key);
+    let file;
+    const rangeHeader = _req.headers.get('range');
+    try {
+      file = await env.BUCKET.get(r.key, rangeHeader ? { range: _req.headers } : {});
+    } catch {
+      file = await env.BUCKET.get(r.key);
+    }
     if (!file) {
       return new Response('فایل در مخزن پیدا نشد.', { status: 404 });
     }
@@ -32,15 +38,24 @@ export async function GET(
     const filename = r.filename || 'update-package.bin';
     const encodedFilename = encodeURIComponent(filename);
 
-    return new Response(file.body, {
-      headers: {
-        'Content-Type': 'application/octet-stream',
-        'Content-Length': String(file.size),
-        'Content-Disposition': `attachment; filename="${filename.replace(/"/g, '')}"; filename*=UTF-8''${encodedFilename}`,
-        'X-Content-Type-Options': 'nosniff',
-        'Cache-Control': 'public, max-age=86400',
-      },
-    });
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/octet-stream',
+      'Content-Disposition': `attachment; filename="${filename.replace(/"/g, '')}"; filename*=UTF-8''${encodedFilename}`,
+      'X-Content-Type-Options': 'nosniff',
+      'Accept-Ranges': 'bytes',
+      'Cache-Control': 'public, max-age=604800',
+    };
+
+    if ('range' in file && file.range) {
+      const rObj = file.range as { offset: number; length: number };
+      const total = ('size' in file ? (file as unknown as { size: number }).size : rObj.length);
+      headers['Content-Range'] = `bytes ${rObj.offset}-${rObj.offset + rObj.length - 1}/${total}`;
+      headers['Content-Length'] = String(rObj.length);
+      return new Response(file.body, { status: 206, headers });
+    }
+
+    headers['Content-Length'] = String(file.size);
+    return new Response(file.body, { status: 200, headers });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'خطا در دریافت فایل دانلود';
     return new Response(msg, { status: 500 });

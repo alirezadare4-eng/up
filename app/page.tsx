@@ -216,7 +216,7 @@ export default function Page() {
         throw new Error(result.error || 'ثبت آپدیت انجام نشد.');
       }
 
-      const fullUrl = `${window.location.origin}/api/download/${result.id}`;
+      const fullUrl = `${window.location.origin}/d/${result.id}`;
       setGeneratedLink({
         id: result.id,
         url: fullUrl,
@@ -264,13 +264,13 @@ export default function Page() {
               <img src="/sepehryar-logo.png" alt="" width={40} height={40} />
             </span>
             <strong>
-              سپهریار
+              SEPEHRYARUPLOADER
               <span className="branddivider" />
-              <small>مرکز آپدیت و ساخت لینک دانلود</small>
+              <small>آپلودر پرسرعت و لینک مستقیم سپهریار</small>
             </strong>
           </Link>
           <span className="topmeta">
-            <i /> سامانه ابری مدیریت و تولید لینک مستقیم نسخه‌ها
+            <i /> لینک کوتاه و پرسرعت تا ۱ گیگابایت
           </span>
         </div>
       </header>
@@ -279,10 +279,10 @@ export default function Page() {
         <section className="intro">
           <div className="hero-emblem" aria-hidden="true"><div className="green-aura" /><img src="/sepehryar-logo.png" alt="" width={140} height={140} /></div>
           <div className="introcopy">
-            <div className="eyebrow">SEPEHRYAR / DIRECT DOWNLOAD & RELEASES</div>
-            <h1>فایل را بدهید، لینک دانلود مستقیم تحویل بگیرید.</h1>
+            <div className="eyebrow">SEPEHRYARUPLOADER • FAST DIRECT DOWNLOAD & CLOUD STORAGE</div>
+            <h1>فایل را بدهید، لینک دانلود پرسرعت و کوتاه تحویل بگیرید.</h1>
             <p>
-              مرکز ساخت آنی لینک دانلود و آرشیو هوشمند پکیج‌های نصاب و به‌روزرسانی سپهریار.
+              سامانه فوق‌سریع SEPEHRYARUPLOADER جهت بارگذاری فایل‌ها تا ۱ گیگابایت با لینک مستقیم و شتاب‌دهنده دانلود.
             </p>
           </div>
           <button className="primary" onClick={openUploadModal}>
@@ -377,8 +377,8 @@ export default function Page() {
               {filtered.map((x) => {
                 const directUrl =
                   typeof window !== 'undefined'
-                    ? `${window.location.origin}/api/download/${x.id}`
-                    : `/api/download/${x.id}`;
+                    ? `${window.location.origin}/d/${x.id}`
+                    : `/d/${x.id}`;
 
                 return (
                   <article className="release" key={x.id}>
@@ -431,10 +431,10 @@ export default function Page() {
 
                       <a
                         className="download"
-                        href={'/api/download/' + x.id}
+                        href={'/d/' + x.id}
                         target="_blank"
                         rel="noreferrer"
-                        title="دانلود مستقیم"
+                        title="دانلود مستقیم و پرسرعت"
                       >
                         دانلود {x.url ? <ArrowUpRight size={15} /> : <ArrowDownToLine size={15} />}
                       </a>
@@ -494,9 +494,9 @@ export default function Page() {
 
         <footer>
           <span>
-            سپهریار <span className="footerline">/</span> سامانه توزیع و مدیریت فایل‌های به‌روزرسانی
+            SEPEHRYARUPLOADER <span className="footerline">/</span> سامانه فوق‌سریع آپلود و اشتراک فایل‌های سپهریار
           </span>
-          <span className="footerenglish">SEPEHRYAR RELEASE & DOWNLOAD CENTER</span>
+          <span className="footerenglish">SEPEHRYARUPLOADER • HIGH-SPEED FILE & RELEASE CENTER</span>
         </footer>
       </main>
 

@@ -1,3 +1,13 @@
 import './globals.css';
-export const metadata={title:'مرکز آپدیت سپهریار',description:'مرجع فایل‌ها و به‌روزرسانی برنامه‌های سپهریار'};
-export default function Layout({children}:{children:React.ReactNode}){return <html lang="fa" dir="rtl"><body>{children}</body></html>}
+export const metadata = {
+  title: 'SEPEHRYARUPLOADER | سامانه دانلود و آپلود سپهریار',
+  description: 'SEPEHRYARUPLOADER - سامانه فوق‌سریع آپلود و ساخت لینک دانلود مستقیم تا ۱ گیگابایت',
+};
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="fa" dir="rtl">
+      <body>{children}</body>
+    </html>
+  );
+}
+
