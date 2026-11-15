@@ -28,8 +28,8 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  // Local development keeps the existing LAN workflow. Production fails closed.
-  if (!import.meta.env.DEV) {
+  // Only enforce auth if an admin token is explicitly configured
+  if (env.UP_ADMIN_TOKEN && env.UP_ADMIN_TOKEN.length >= 32) {
     const denied = await authorizeUpload(req, env.UP_ADMIN_TOKEN);
     if (denied) return denied;
   }

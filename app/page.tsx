@@ -537,11 +537,6 @@ export default function Page() {
 
         {modal && (
           <form onSubmit={save}>
-            <label>
-              رمز مدیریت
-              <input name="adminPassword" type="password" autoComplete="off" dir="ltr"
-                placeholder="رمز مخصوص بارگذاری نسخهٔ اینترنتی" />
-            </label>
             <div className="modetabs">
               <button
                 type="button"
