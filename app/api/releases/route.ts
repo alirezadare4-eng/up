@@ -7,7 +7,10 @@ import { authorizeUpload } from '@/lib/upload-auth';
 const VALID_CATEGORIES = [
   'بازرگانی',
   'صنعتی',
+  'فروشگاهی',
   'رستورانی',
+  'سامانه مودیان',
+  'مودیان',
   'باشگاه مشتریان',
   'دیجی کالا',
   'اسنپ',
