@@ -1,4 +1,4 @@
-﻿@echo off
+@echo off
 chcp 65001 >nul
 title پروژه UP - مرکز آپدیت سپهریار (پورت 3000)
 cd /d "%~dp0"

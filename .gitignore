@@ -40,6 +40,9 @@ yarn-error.log*
 /.codex/
 /outputs/
 /work/
+*.log
+tunnel.log
+server_output.log
 
 # OS metadata
 .DS_Store
