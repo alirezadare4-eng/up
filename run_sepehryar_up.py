@@ -136,7 +136,7 @@ def start_cloudflared_tunnel():
         # استارت مجدد تونل
         with open(tunnel_log, "w", encoding="utf-8") as t_log:
             subprocess.Popen(
-                [str(CLOUDFLARED_EXE), "tunnel", "--url", "http://127.0.0.1:3000"],
+                [str(CLOUDFLARED_EXE), "tunnel", "--protocol", "http2", "--url", "http://127.0.0.1:3000"],
                 cwd=str(UP_DIR),
                 stdout=t_log,
                 stderr=t_log,

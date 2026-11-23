@@ -17,6 +17,6 @@ if exist "D:\ai app\cloudflared.exe" set "CLOUDFLARED=D:\ai app\cloudflared.exe"
 if "%CLOUDFLARED%"=="" if exist "D:\Projects\ai app\cloudflared.exe" set "CLOUDFLARED=D:\Projects\ai app\cloudflared.exe"
 if "%CLOUDFLARED%"=="" set "CLOUDFLARED=cloudflared"
 
-"%CLOUDFLARED%" tunnel --url http://127.0.0.1:3000
+"%CLOUDFLARED%" tunnel --protocol http2 --url http://127.0.0.1:3000
 pause
 

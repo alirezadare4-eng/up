@@ -1,7 +1,7 @@
 import { env } from 'cloudflare:workers';
 import { getDb } from '@/db';
 import { releases } from '@/db/schema';
-import { desc } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { authorizeUpload } from '@/lib/upload-auth';
 
 const VALID_CATEGORIES = [
@@ -151,5 +151,42 @@ export async function POST(req: Request) {
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : 'ثبت فایل و ساخت لینک انجام نشد.';
     return Response.json({ error: message }, { status: 400 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const url = new URL(req.url);
+    const id = url.searchParams.get('id');
+
+    if (id) {
+      const existing = await getDb().select().from(releases).where(eq(releases.id, id));
+      if (existing.length > 0) {
+        const item = existing[0];
+        if (item.key && env.BUCKET) {
+          try {
+            await env.BUCKET.delete(item.key);
+          } catch { }
+        }
+        await getDb().delete(releases).where(eq(releases.id, id));
+        return Response.json({ message: `نسخه ${item.title} با موفقیت حذف گردید.` });
+      }
+      return Response.json({ error: 'نسخه مورد نظر یافت نشد.' }, { status: 404 });
+    }
+
+    // Delete All
+    const all = await getDb().select().from(releases);
+    for (const item of all) {
+      if (item.key && env.BUCKET) {
+        try {
+          await env.BUCKET.delete(item.key);
+        } catch { }
+      }
+    }
+    await getDb().delete(releases);
+    return Response.json({ message: `تمامی فایل‌ها و رکوردهای منتشرشده (${all.length} مورد) با موفقیت پاکسازی شدند.` });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : 'خطا در عملیات حذف';
+    return Response.json({ error: message }, { status: 500 });
   }
 }
